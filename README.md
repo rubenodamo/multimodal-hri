@@ -42,7 +42,7 @@ For detailed design see:
 Clone the repository:
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/rubenodamo/multimodal-hri.git
 cd multimodal-hri
 
 # Install dependencies
