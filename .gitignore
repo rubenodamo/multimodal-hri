@@ -68,3 +68,8 @@ models/
 
 # Local development notes
 notes/
+
+
+# Allow assets images
+!assets/
+!assets/*.png
