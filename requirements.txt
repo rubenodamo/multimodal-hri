@@ -1,0 +1,8 @@
+streamlit>=1.33
+streamlit-webrtc
+mediapipe
+openai-whisper
+opencv-python
+pandas
+matplotlib
+pytest
