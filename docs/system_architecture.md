@@ -40,15 +40,10 @@ The system follows a sequential processing pipeline:
 
 ## System Architecture Diagram
 
-> *(Insert diagram here)*
+The system architecture consists of parallel voice and gesture processing pipelines, whose outputs are combined using decision-level fusion to produce a structured command. A Streamlit-based interaction layer manages both live interaction and experiment modes, while experimental trials are logged for offline analysis.
 
-Suggested diagram content:
-- Input layer (Voice / Gesture)
-- Processing layer (Parser / Detector)
-- Fusion module
-- UI layer (Streamlit)
-- Experiment + Logging layer
-- Analysis module
+![System Architecture Diagram](/assets/github-system-architecture.png)
+
 
 ## Component Architecture
 
@@ -121,14 +116,9 @@ The system uses Streamlit to provide two interaction modes:
 
 ---
 ## Interaction Flow Diagram
-TODO:
+The following sequence diagram illustrates how the system processes user input in live interaction mode, including optional voice and gesture inputs and their fusion into a structured command.
 
-> *(Insert diagram here — sequence diagram)*
-
-[comment]: <> (
-Suggested diagram:
-User → UI → Voice/Gesture → Fusion → Output → Logger
-)
+![Live Mode Sequence Diagram](/assets/live-sequence-diagram.png)
 
 ### Experiment Management
 
@@ -175,18 +165,9 @@ Processes logged data to compute evaluation metrics and generate visualisations.
 
 ---
 ## Data Flow
+The data flow diagram illustrates how information moves through the system, from multimodal input to command generation, evaluation, and analysis.
 
-TODO:
-> *(Insert diagram here — recommended: data flow diagram)*
-
-Typical flow:
-
-1. User provides input (voice, gesture, or both)
-2. Each modality produces a partial `RobotCommand`
-3. Fusion module combines inputs into a final command
-4. Command is displayed to the user
-5. (Trial mode) Result is validated and logged
-6. Logs are analysed offline
+![Data Flow Diagram](/assets/data-flow-diagram.png)
 
 ## Extensibility
 

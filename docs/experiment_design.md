@@ -98,8 +98,14 @@ Each trial follows a consistent sequence:
 5. **Logging**
    - Trial result is recorded for analysis
 
-TODO:
-> *(Insert screenshot here — trial interface showing prompt, input, and result panel)*
+![Trial Screenshot](/assets/trial-screenshot.png)
+*Figure: Experiment mode interface showing prompt, input and result panel.*
+
+## Trial Interaction Flow
+The following sequence diagram illustrates the interaction flow during a trial in experiment mode, including user input, multimodal processing, fusion, and evaluation with logging.
+
+![Experiment Mode Sequence Diagram](/assets/exp-sequence-diagram.png)
+
 
 ### Counterbalancing
 

@@ -36,15 +36,9 @@ These inputs are fused into a single command using the algorithm described below
 
 
 ## Fusion Pipeline
-TODO:
-> *(Insert diagram here — fusion pipeline diagram)*
+The fusion pipeline performs decision-level fusion of voice and gesture commands. Inputs are first temporally aligned within a fusion window. Field-level fusion is then applied independently to action, object, and location using agreement, conflict resolution, and ambiguity handling. The final confidence score is computed from merged field confidences and adjusted using temporal alignment.
 
-[comment]: <> (
-Suggested diagram:
-Voice → Parsed Command  
-Gesture → Detected Command  
-→ Temporal Alignment → Field Fusion → Final Command
-)
+![Fusion Pipeline Diagram](/assets/fusion-pipeline-diagram.png)
 
 
 ## Temporal Alignment
