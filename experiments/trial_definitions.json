@@ -5,7 +5,7 @@
     "expected_action": "pick",
     "expected_object": "red_cube",
     "expected_location": "left",
-    "prompt_text": "Pick up the red cube and place it to the left."
+    "prompt_text": "Pick up the red cube and move it to the left."
   },
   {
     "trial_id": 2,
@@ -237,6 +237,6 @@
     "expected_action": "pick",
     "expected_object": "blue_cube",
     "expected_location": "right",
-    "prompt_text": "Pick up the blue cube and place it on the right (say the command, then gesture the location: right)."
+    "prompt_text": "Pick up the blue cube and move it to the right (say the command, then gesture the location: right)."
   }
 ]
