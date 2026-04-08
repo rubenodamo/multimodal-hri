@@ -78,13 +78,32 @@ def plot_accuracy_by_condition(df: pd.DataFrame) -> plt.Figure:
     """
 
     acc = accuracy_by_condition(df)
+    conditions = [c for c in _CONDITION_ORDER if c in acc.index]
+    heights = [float(acc[c]) for c in conditions]
+    colours = [_CONDITION_COLOURS.get(c, "steelblue") for c in conditions]
 
-    return _bar_by_condition(
-        acc,
-        "Accuracy by Condition",
-        "Accuracy (proportion correct)",
-        ylim=(0, 1),
-    )
+    fig, ax = plt.subplots()
+    bars = ax.bar(conditions, heights, color=colours)
+    ax.set_title("Accuracy by Condition")
+    ax.set_xlabel("Condition")
+    ax.set_ylabel("Accuracy (proportion correct)")
+
+    y_min = max(0, min(heights) - 0.05)
+    y_max = min(1.0, max(heights) + 0.03)
+    ax.set_ylim(y_min, y_max)
+
+    for bar, h in zip(bars, heights):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            h + (y_max - y_min) * 0.01,
+            f"{h:.1%}",
+            ha="center",
+            va="bottom",
+            fontsize=10,
+        )
+
+    fig.tight_layout()
+    return fig
 
 
 def plot_latency_by_condition(df: pd.DataFrame) -> plt.Figure:
@@ -138,7 +157,7 @@ def plot_latency_by_condition(df: pd.DataFrame) -> plt.Figure:
 
 def plot_error_rate_by_condition(df: pd.DataFrame) -> plt.Figure:
     """
-    Plot mean corrections per condition.
+    Plot error rate per condition.
 
     Args:
         df: Session DataFrame.
@@ -148,13 +167,31 @@ def plot_error_rate_by_condition(df: pd.DataFrame) -> plt.Figure:
     """
 
     err = error_rate_by_condition(df)
+    conditions = [c for c in _CONDITION_ORDER if c in err.index]
+    heights = [float(err[c]) for c in conditions]
+    colours = [_CONDITION_COLOURS.get(c, "steelblue") for c in conditions]
 
-    return _bar_by_condition(
-        err,
-        "Error Rate by Condition",
-        "Error rate (proportion incorrect)",
-        ylim=(0, 1),
-    )
+    fig, ax = plt.subplots()
+    bars = ax.bar(conditions, heights, color=colours)
+    ax.set_title("Error Rate by Condition")
+    ax.set_xlabel("Condition")
+    ax.set_ylabel("Error rate (proportion incorrect)")
+
+    y_max = max(heights) * 1.4 if max(heights) > 0 else 0.1
+    ax.set_ylim(0, y_max)
+
+    for bar, h in zip(bars, heights):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            h + y_max * 0.01,
+            f"{h:.1%}",
+            ha="center",
+            va="bottom",
+            fontsize=10,
+        )
+
+    fig.tight_layout()
+    return fig
 
 
 def plot_corrections_by_condition(df: pd.DataFrame) -> plt.Figure:
@@ -191,6 +228,44 @@ def plot_corrections_by_condition(df: pd.DataFrame) -> plt.Figure:
     )
 
 
+def _plot_fusion_metrics(df: pd.DataFrame) -> plt.Figure:
+    """
+    Combined bar chart for conflict rate and fusion-within-window rate.
+    """
+
+    cr = conflict_rate(df)
+    fwr = fusion_within_window_rate(df)
+
+    labels = ["Conflict rate", "Fusion within window"]
+    values = [cr, fwr]
+    colours = ["#DD8452", "#55A868"]
+
+    fig, ax = plt.subplots()
+    bars = ax.bar(labels, values, color=colours)
+    ax.set_title("Multimodal Fusion Metrics")
+    ax.set_ylabel("Proportion of multimodal trials")
+    ax.set_ylim(0, 1)
+
+    for bar, v in zip(bars, values):
+        if v > 0.85:
+            y_pos, va = v - 0.05, "top"
+        else:
+            y_pos, va = max(v + 0.02, 0.04), "bottom"
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            y_pos,
+            f"{v:.1%}",
+            ha="center",
+            va=va,
+            fontsize=11,
+            fontweight="bold",
+            color="white" if v > 0.85 else "black",
+        )
+
+    fig.tight_layout()
+    return fig
+
+
 def plot_conflict_rate(df: pd.DataFrame) -> plt.Figure:
     """
     Plot conflict and fusion-window rates for multimodal trials.
@@ -202,26 +277,12 @@ def plot_conflict_rate(df: pd.DataFrame) -> plt.Figure:
         Bar chart figure.
     """
 
-    cr = conflict_rate(df)
-    fwr = fusion_within_window_rate(df)
-
-    fig, ax = plt.subplots()
-    ax.bar(
-        ["Conflict rate", "Fusion within window"],
-        [cr, fwr],
-        color=["#DD8452", "#55A868"],
-    )
-    ax.set_title("Multimodal Fusion Metrics")
-    ax.set_ylabel("Proportion of multimodal trials")
-    ax.set_ylim(0, 1)
-    fig.tight_layout()
-
-    return fig
+    return _plot_fusion_metrics(df)
 
 
 def plot_fusion_window_rate(df: pd.DataFrame) -> plt.Figure:
     """
-    Plot fusion-within-window rate.
+    Plot fusion-within-window rate alongside conflict rate.
 
     Args:
         df: Session DataFrame.
@@ -230,16 +291,7 @@ def plot_fusion_window_rate(df: pd.DataFrame) -> plt.Figure:
         Bar chart figure.
     """
 
-    fwr = fusion_within_window_rate(df)
-
-    fig, ax = plt.subplots()
-    ax.bar(["Fusion within window"], [fwr], color="#55A868")
-    ax.set_title("Fusion Within Window Rate (Multimodal Only)")
-    ax.set_ylabel("Proportion of multimodal trials")
-    ax.set_ylim(0, 1)
-    fig.tight_layout()
-
-    return fig
+    return _plot_fusion_metrics(df)
 
 
 def plot_field_accuracy(df: pd.DataFrame) -> plt.Figure:
@@ -299,7 +351,7 @@ def plot_confusion_matrix(df: pd.DataFrame, field: str) -> plt.Figure:
         )
         return fig
 
-    valid = df.dropna(subset=[expected_col, predicted_col])
+    valid = df.dropna(subset=[expected_col]).copy()
     if valid.empty:
         fig, ax = plt.subplots()
         ax.set_title(f"Confusion Matrix: {field}")
@@ -313,7 +365,12 @@ def plot_confusion_matrix(df: pd.DataFrame, field: str) -> plt.Figure:
         )
         return fig
 
-    labels = sorted(valid[expected_col].unique().tolist())
+    # Fill missing predictions with a explicit label so they appear in the matrix
+    valid[predicted_col] = valid[predicted_col].fillna("(no prediction)")
+
+    labels = sorted(
+        set(valid[expected_col].unique()) | set(valid[predicted_col].unique())
+    )
     n = len(labels)
     label_idx = {lbl: i for i, lbl in enumerate(labels)}
 
@@ -453,13 +510,15 @@ def plot_learning_curve(df: pd.DataFrame) -> plt.Figure:
     acc = accuracy_over_trials(df)
     lat = latency_over_trials(df)
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 9), sharex=True)
+    fig.subplots_adjust(hspace=0.35)
 
     if not acc.empty:
-        ax1.plot(acc.index.astype(int), acc.values, marker="o", color="#4C72B0")
-        ax1.set_ylabel("Mean Accuracy")
-        ax1.set_ylim(0, 1)
-        ax1.set_title("Learning Curve: Accuracy Over Trials")
+        ax1.plot(acc.index.astype(int), acc.values, marker="o", color="#4C72B0", linewidth=2, markersize=7)
+        ax1.set_ylabel("Mean Accuracy", fontsize=14)
+        ax1.set_ylim(0, 1.05)
+        ax1.set_title("Learning Curve: Accuracy Over Trials", fontsize=15)
+        ax1.tick_params(labelsize=12)
         ax1.grid(axis="y", linestyle="--", alpha=0.5)
     else:
         ax1.text(
@@ -470,13 +529,14 @@ def plot_learning_curve(df: pd.DataFrame) -> plt.Figure:
             va="center",
             transform=ax1.transAxes,
         )
-        ax1.set_title("Learning Curve: Accuracy Over Trials")
+        ax1.set_title("Learning Curve: Accuracy Over Trials", fontsize=15)
 
     if not lat.empty:
-        ax2.plot(lat.index.astype(int), lat.values, marker="o", color="#DD8452")
-        ax2.set_xlabel("Trial ID")
-        ax2.set_ylabel("Mean Latency (ms)")
-        ax2.set_title("Learning Curve: Latency Over Trials")
+        ax2.plot(lat.index.astype(int), lat.values, marker="o", color="#DD8452", linewidth=2, markersize=7)
+        ax2.set_xlabel("Trial ID", fontsize=14)
+        ax2.set_ylabel("Mean Latency (ms)", fontsize=14)
+        ax2.set_title("Learning Curve: Latency Over Trials", fontsize=15)
+        ax2.tick_params(labelsize=12)
         ax2.grid(axis="y", linestyle="--", alpha=0.5)
     else:
         ax2.text(
