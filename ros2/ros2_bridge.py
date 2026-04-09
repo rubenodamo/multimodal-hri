@@ -174,7 +174,7 @@ def main() -> None:
     """
     Main entry point for the ROS 2 bridge.
 
-    Initializes the ROS 2 node, starts the HTTP server, and handles shutdown.
+    Initialises the ROS 2 node, starts the HTTP server, and handles shutdown.
     """
 
     global _node
