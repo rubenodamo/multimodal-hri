@@ -14,6 +14,7 @@ import pandas as pd
 
 from analysis import metrics, plots
 from analysis.loader import load_session_csv, load_sessions_from_directory
+from analysis.stats import format_statistical_tests, run_statistical_tests
 
 # Renders plots in the background
 matplotlib.use("Agg")
@@ -98,6 +99,10 @@ def print_summary(df: pd.DataFrame) -> None:
     if df["participant_id"].nunique() > 1:
         print("\n  --- Per-Participant Summary ---")
         print(metrics.metrics_by_participant(df).to_string())
+
+    print("\n  --- Statistical Tests ---")
+    test_results = run_statistical_tests(df)
+    print(format_statistical_tests(test_results))
 
     print("\n" + "=" * 55)
 
