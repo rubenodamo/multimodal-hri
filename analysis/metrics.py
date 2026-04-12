@@ -190,6 +190,19 @@ def fusion_within_window_rate(df: pd.DataFrame) -> float:
     return float(valid.mean())
 
 
+def _normalise_field(series: pd.Series) -> pd.Series:
+    """
+    Normalise command field values for comparison.
+
+    Args:
+        series: Series of command field values.
+    
+    Returns:
+        Series with values lowercased and NaNs replaced by "none".
+    """
+    return series.fillna("none")
+
+
 def field_accuracy(df: pd.DataFrame, field: str) -> float:
     """
     Return accuracy for one command field.
@@ -216,7 +229,7 @@ def field_accuracy(df: pd.DataFrame, field: str) -> float:
             f"Unknown field: {field!r}. Must be 'action', 'object', or 'location'."
         )
 
-    matches = df[expected_col] == df[predicted_col]
+    matches = _normalise_field(df[expected_col]) == _normalise_field(df[predicted_col])
 
     return float(matches.mean())
 
@@ -248,7 +261,7 @@ def field_accuracy_by_condition(df: pd.DataFrame, field: str) -> pd.Series:
 
     df = df.copy()
     col = f"{field}_correct"
-    df[col] = df[expected_col] == df[predicted_col]
+    df[col] = _normalise_field(df[expected_col]) == _normalise_field(df[predicted_col])
 
     return df.groupby("condition")[col].mean().astype(float)
 
