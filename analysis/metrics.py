@@ -146,13 +146,14 @@ def corrections_by_condition(df: pd.DataFrame) -> pd.DataFrame:
 
 def conflict_rate(df: pd.DataFrame) -> float:
     """
-    Return conflict rate for multimodal trials.
+    Return conflict rate for gesture-contributing multimodal trials.
 
     Args:
         df: Session DataFrame.
 
     Returns:
-        Proportion of multimodal trials with fusion conflict.
+        Proportion of gesture-contributing multimodal trials with a fusion
+        conflict. Returns 0.0 if no such trials exist.
     """
 
     if df.empty or "condition" not in df.columns:
@@ -162,7 +163,11 @@ def conflict_rate(df: pd.DataFrame) -> float:
     if mm.empty or "conflict_flag" not in mm.columns:
         return 0.0
 
-    return float(mm["conflict_flag"].mean())
+    gesture_trials = mm.dropna(subset=["gesture_timestamp"])
+    if gesture_trials.empty:
+        return 0.0
+
+    return float(gesture_trials["conflict_flag"].mean())
 
 
 def fusion_within_window_rate(df: pd.DataFrame) -> float:

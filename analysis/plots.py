@@ -231,10 +231,16 @@ def plot_corrections_by_condition(df: pd.DataFrame) -> plt.Figure:
 def _plot_fusion_metrics(df: pd.DataFrame) -> plt.Figure:
     """
     Combined bar chart for conflict rate and fusion-within-window rate.
+
+    Both metrics are computed over gesture-contributing multimodal trials
+    only (trials where gesture_timestamp is not null).
     """
 
     cr = conflict_rate(df)
     fwr = fusion_within_window_rate(df)
+
+    mm = df[df["condition"] == "multimodal"] if not df.empty else pd.DataFrame()
+    n_gesture = int(mm["gesture_timestamp"].notna().sum()) if not mm.empty else 0
 
     labels = ["Conflict rate", "Fusion within window"]
     values = [cr, fwr]
@@ -242,8 +248,12 @@ def _plot_fusion_metrics(df: pd.DataFrame) -> plt.Figure:
 
     fig, ax = plt.subplots()
     bars = ax.bar(labels, values, color=colours)
-    ax.set_title("Multimodal Fusion Metrics")
-    ax.set_ylabel("Proportion of multimodal trials")
+    ax.set_title(
+        f"Multimodal Fusion Metrics\n"
+        f"(gesture-contributing trials, n={n_gesture})",
+        fontsize=11,
+    )
+    ax.set_ylabel("Proportion of gesture-contributing trials")
     ax.set_ylim(0, 1)
 
     for bar, v in zip(bars, values):
